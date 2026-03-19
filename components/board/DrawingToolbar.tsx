@@ -22,6 +22,7 @@ interface DrawingToolbarProps {
   onYoutubeToggle?: () => void;
   isYoutubeActive?: boolean;
   onApplyFormation?: (name: string, team: 'red' | 'blue') => void;
+  onClear?: () => void;
 }
 
 const Icons = {
@@ -92,7 +93,8 @@ export default function DrawingToolbar({
   readOnly, 
   onYoutubeToggle, 
   isYoutubeActive,
-  onApplyFormation 
+  onApplyFormation,
+  onClear
 }: DrawingToolbarProps) {
   const { 
     currentTool, 
@@ -108,7 +110,7 @@ export default function DrawingToolbar({
   } = useDrawingStore();
 
   const [isFormationOpen, setIsFormationOpen] = useState(false);
-  const [selectedTeam, setSelectedTeam] = useState<'red' | 'blue'>('blue');
+  const [selectedTeam, setSelectedTeam] = useState<'red' | 'blue'>('red');
   
   const [playerNum, setPlayerNum] = useState<string>('1');
   const [playerTeam, setPlayerTeam] = useState<'red' | 'blue'>('red');
@@ -272,7 +274,14 @@ export default function DrawingToolbar({
         <ToolButton onClick={undo} title="되돌리기">
           <Icons.Undo />
         </ToolButton>
-        <ToolButton onClick={clear} title="전체 삭제" danger>
+        <ToolButton 
+          onClick={() => {
+            if (onClear) onClear();
+            else clear();
+          }} 
+          title="전체 삭제" 
+          danger
+        >
           <Icons.Trash />
         </ToolButton>
       </div>
@@ -289,7 +298,7 @@ export default function DrawingToolbar({
               value={playerNum}
               onChange={(e) => setPlayerNum(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleConfirmPlayer()}
-              className="w-full px-3 py-2 bg-[#f3f4f6] border-none rounded-lg text-sm font-bold focus:ring-2 focus:ring-[#0a0a0a] outline-none transition-all"
+              className="w-full px-3 py-2 bg-white border border-[#e5e7eb] rounded-lg text-sm font-bold text-[#0a0a0a] focus:ring-2 focus:ring-[#0a0a0a] outline-none transition-all"
               placeholder="1~99"
               autoFocus
             />
@@ -345,7 +354,10 @@ export default function DrawingToolbar({
             {FORMATIONS.map((f) => (
               <button
                 key={f.name}
-                onClick={() => onApplyFormation?.(f.name, selectedTeam)}
+                onClick={() => {
+                  onApplyFormation?.(f.name, selectedTeam);
+                  setIsFormationOpen(false);
+                }}
                 className="py-2.5 px-2 bg-white hover:bg-[#f3f4f6] text-[#0a0a0a] text-[12px] font-medium rounded-lg border border-[#e5e7eb] transition-all cursor-pointer"
               >
                 {f.name}
